@@ -4,6 +4,3 @@
 [submodule "stage_ros2"]
 	path = stage_ros2
 	url = https://github.com/tuw-robotics/stage_ros2
-[submodule "teleop_panel"]
-	path = teleop_panel
-	url = https://github.com/RobotnikAutomation/teleop_panel
