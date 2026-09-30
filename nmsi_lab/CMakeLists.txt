@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.10)
 project(nmsi_lab)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -7,9 +7,8 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-# uncomment the following section in order to fill in
-# further dependencies manually.
 find_package(rclcpp REQUIRED)
+find_package(rclcpp_action REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(nav2_msgs REQUIRED)
@@ -17,15 +16,15 @@ find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
 
 add_executable(a_star src/a_star.cpp)
-ament_target_dependencies(
-  a_star
-  rclcpp
-  geometry_msgs
-  nav_msgs
-  nav2_msgs
-  tf2
-  tf2_ros
-  rclcpp_action)
+target_link_libraries(a_star PUBLIC
+  ${rclcpp_TARGETS}
+  ${rclcpp_action_TARGETS}
+  ${geometry_msgs_TARGETS}
+  ${nav_msgs_TARGETS}
+  ${nav2_msgs_TARGETS}
+  ${tf2_TARGETS}
+  ${tf2_ros_TARGETS}
+)
 
 target_include_directories(a_star PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
