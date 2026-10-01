@@ -9,7 +9,7 @@ def generate_launch_description():
     config_path = os.path.join(package_path, "config", config_file_name)
     map_config_path = os.path.join(package_path, "config", "map.yaml")
     
-    lifecycle_nodes = ['map_server', 'amcl', 'controller_server']
+    lifecycle_nodes = ['map_server', 'amcl']
 
     return LaunchDescription([
         Node(
@@ -25,13 +25,6 @@ def generate_launch_description():
             package='nav2_amcl',
             executable='amcl',
             name='amcl',
-            output='screen',
-            parameters=[config_path]
-        ),
-        Node(
-            package='nav2_controller',
-            executable='controller_server',
-            name='controller_server',
             output='screen',
             parameters=[config_path]
         ),
