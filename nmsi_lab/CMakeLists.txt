@@ -14,6 +14,7 @@ find_package(nav_msgs REQUIRED)
 find_package(nav2_msgs REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
 
 add_executable(a_star src/a_star.cpp)
 target_link_libraries(a_star PUBLIC
@@ -27,12 +28,30 @@ target_link_libraries(a_star PUBLIC
 )
 
 target_include_directories(a_star PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include/${PROJECT_NAME}>)
-target_compile_features(a_star PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
+$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+$<INSTALL_INTERFACE:include/${PROJECT_NAME}>)
+target_compile_features(a_star PUBLIC c_std_99 cxx_std_17)
 
 install(TARGETS a_star
-  DESTINATION lib/${PROJECT_NAME})
+DESTINATION lib/${PROJECT_NAME})
+
+add_executable(path_follower src/path_follower.cpp)
+target_link_libraries(path_follower PUBLIC
+  ${rclcpp_TARGETS}
+  ${geometry_msgs_TARGETS}
+  ${nav_msgs_TARGETS}
+  ${tf2_TARGETS}
+  ${tf2_ros_TARGETS}
+  ${tf2_geometry_msgs_TARGETS}
+)
+
+target_include_directories(path_follower PUBLIC
+$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+$<INSTALL_INTERFACE:include/${PROJECT_NAME}>)
+target_compile_features(path_follower PUBLIC c_std_99 cxx_std_17)
+
+install(TARGETS path_follower
+DESTINATION lib/${PROJECT_NAME})
 
 install(DIRECTORY 
   launch

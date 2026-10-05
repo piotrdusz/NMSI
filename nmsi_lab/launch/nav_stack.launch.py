@@ -37,5 +37,19 @@ def generate_launch_description():
                 {'autostart': True},
                 {'node_names': lifecycle_nodes}
             ]
-        )
+        ),
+        Node(
+            package='nmsi_lab',
+            executable='a_star',
+            name='a_star',
+            output='screen',
+            parameters=[config_path]
+        ),
+        Node(
+            package='nmsi_lab',
+            executable='path_follower',
+            name='path_follower',
+            output='screen',
+            parameters=[config_path]
+        ),
     ])
