@@ -46,6 +46,13 @@ def launch_setup(context):
             parameters=[config_path, {'yaml_filename': map_config_path}]
         ),
         Node(
+            package='nmsi_lab',
+            executable='map_processor',
+            name='map_processor',
+            output='screen',
+            parameters=[{'robot_radius': 0.25, 'max_cost_distance': 1.0}]
+        ),
+        Node(
             package='nav2_amcl',
             executable='amcl',
             name='amcl',

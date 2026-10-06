@@ -60,6 +60,16 @@ install(DIRECTORY
   DESTINATION share/${PROJECT_NAME}
 )
 
+add_executable(map_processor src/map_processor.cpp)
+target_link_libraries(map_processor PUBLIC
+  ${rclcpp_TARGETS}
+  ${nav_msgs_TARGETS}
+)
+target_compile_features(map_processor PUBLIC c_std_99 cxx_std_17)
+
+install(TARGETS map_processor
+DESTINATION lib/${PROJECT_NAME})
+
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   # the following line skips the linter which checks for copyrights
