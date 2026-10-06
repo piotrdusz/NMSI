@@ -56,6 +56,7 @@ DESTINATION lib/${PROJECT_NAME})
 install(DIRECTORY 
   launch
   config
+  world
   DESTINATION share/${PROJECT_NAME}
 )
 

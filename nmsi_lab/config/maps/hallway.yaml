@@ -1,0 +1,6 @@
+image: ../../world/bitmaps/hallway.png
+resolution: 0.1
+origin: [-12.5, -12.5, 0.0]
+occupied_thresh: 0.65
+free_thresh: 0.25
+negate: 0

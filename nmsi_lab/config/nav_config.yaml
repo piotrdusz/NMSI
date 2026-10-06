@@ -17,12 +17,7 @@ amcl:
     # 2. Stage Simulator Laser Topic
     scan_topic: "base_scan" 
     
-    # 3. Initial Pose (Where the robot spawns in cave.world)
-    set_initial_pose: true
-    initial_pose: 
-      x: -7.0
-      y: -7.0
-      yaw: 0.7854  # 45 degrees in radians
+    # 3. Initial pose is set per world in simulation.launch.py
       
     # 4. Particle Filter settings
     max_particles: 2000
