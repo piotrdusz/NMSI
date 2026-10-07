@@ -28,8 +28,6 @@ Wykorzystywane narzędzia:
 | **colcon** | budowanie pakietów |
 | **C++17, VS Code** | język i edytor |
 
-Instalacja środowiska została przygotowana przez prowadzącego — niczego nie instaluj samodzielnie.
-
 ## 2. Podstawowe pojęcia ROS 2
 
 ROS 2 (Robot Operating System 2) nie jest systemem operacyjnym. To zestaw bibliotek, narzędzi i konwencji, który pozwala wielu niezależnym programom (np. sterownik silników, lokalizacja, planer trasy) wymieniać dane bez pisania własnej komunikacji. Pełna dokumentacja: <https://docs.ros.org/en/lyrical/ROS-Framework.html>.
@@ -51,16 +49,7 @@ Podstawowy sposób komunikacji to model **publikuj–subskrybuj**:
 
 Poza tematami ROS 2 oferuje jeszcze **serwisy** (zapytanie–odpowiedź) i **akcje** (długotrwałe zadania z informacją zwrotną). W tym ćwiczeniu używamy wyłącznie tematów.
 
-### 2.3. QoS — jakość usługi komunikacji
-
-Każdy publisher i subscriber ma ustawiony profil QoS (*Quality of Service*). Dla nas istotne jest **durability**:
-
-- `volatile` — odbiorca dostaje tylko wiadomości wysłane po jego podłączeniu (typowe dla danych strumieniowych, np. skan lasera),
-- `transient_local` — publisher zapamiętuje ostatnią wiadomość i wysyła ją każdemu nowemu odbiorcy (tak zachowują się **mapy**, publikowane tylko raz).
-
-Jeśli publisher i subscriber mają niezgodne QoS, wiadomości **nie dotrą**, a ROS nie zawsze zgłosi błąd. W szkielecie programu mapy są odbierane z `QoS(1).transient_local().reliable()` właśnie dlatego, że mapa jest publikowana jednorazowo.
-
-### 2.4. Pakiety i przestrzeń robocza
+### 2.3. Pakiety i przestrzeń robocza
 
 **Pakiet** (package) to podstawowa jednostka organizacji kodu: zawiera kod, opis zależności (`package.xml`), konfigurację budowania (`CMakeLists.txt`), pliki launch i konfiguracyjne. Pakiety leżą w katalogu `src` **przestrzeni roboczej** (workspace):
 
@@ -78,14 +67,14 @@ Jeśli publisher i subscriber mają niezgodne QoS, wiadomości **nie dotrą**, a
 
 Kod edytujesz tylko w `src`. Po zbudowaniu pakietu (`colcon build`) w każdym terminalu trzeba wykonać `source install/setup.bash`, aby ROS znalazł zbudowane programy.
 
-### 2.5. Parametry i pliki launch
+### 2.4. Parametry i pliki launch
 
 - **Parametr** to ustawienie węzła (np. `robot_radius` węzła `map_processor`) przekazywane przy uruchomieniu lub w pliku YAML (`config/nav_config.yaml`).
 - **Plik launch** (`launch/*.launch.py`) uruchamia kilka węzłów naraz z zadanymi parametrami. W ćwiczeniu są dwa:
   - `simulation.launch.py` — symulator, RViz2, mapa, lokalizacja (nie modyfikujesz),
   - `robot_controller.launch.py` — węzły `a_star` i `path_follower`.
 
-### 2.6. TF — układy współrzędnych
+### 2.5. TF — układy współrzędnych
 
 Robot i jego otoczenie opisuje się w wielu układach współrzędnych. Zależności między nimi zapisuje mechanizm **TF** (temat `/tf`). U nas:
 
@@ -97,11 +86,11 @@ Robot i jego otoczenie opisuje się w wielu układach współrzędnych. Zależno
 
 Łańcuch przekształceń: `map → odom → base_link`. Przekształcenie `odom → base_link` publikuje symulator, a `map → odom` publikuje `amcl` (lokalizacja robota na mapie metodą filtru cząsteczkowego). Dzięki temu można zapytać TF o pozycję robota **w układzie mapy** — właśnie tak szkielet `a_star.cpp` wyznacza punkt startowy (`lookupTransform("map", "base_link", ...)`).
 
-### 2.7. Czas symulacji
+### 2.6. Czas symulacji
 
 Węzły w tym ćwiczeniu mają ustawione `use_sim_time: true`, czyli korzystają z czasu publikowanego przez symulator na temacie `/clock`, a nie z zegara komputera. Dlatego `now()` w węźle zwraca czas symulacji.
 
-### 2.8. Mapa jako `nav_msgs/msg/OccupancyGrid`
+### 2.7. Mapa jako `nav_msgs/msg/OccupancyGrid`
 
 Mapa jest siatką komórek o stałym rozmiarze. Szczegóły (pola, indeksowanie) omówiono w `02_a_star.md`. Tu wystarczy wiedzieć, że w ćwiczeniu pojawiają się trzy mapy:
 
