@@ -164,35 +164,52 @@ Tej karty nie zamykaj, bo działa w niej cała symulacja. Można ją zatrzymać 
 
 ### 4.2. Węzły
 
-Otwórz nową kartę, wypisz działające węzły, a potem zobacz, z czym komunikuje się jeden z nich:
+Otwórz nową kartę i wpisz:
 
 ```bash
 ros2 node list
-ros2 node info /map_processor
 ```
 
-Na liście znajdziesz m.in. `/stage`, `/rviz2`, `/map_server` i `/amcl`. Polecenie `node info` wypisuje tematy, które węzeł subskrybuje (*Subscribers*) i publikuje (*Publishers*).
+Polecenie wyświetla nazwy wszystkich aktualnie działających węzłów. Wybierz z listy węzeł, którego działanie chcesz sprawdzić. W poniższym poleceniu zastąp `NAZWA_WĘZŁA` pełną nazwą wybranego węzła z listy, łącznie z początkowym ukośnikiem:
 
-Jaką rolę pełni w systemie węzeł `map_processor`?
+```bash
+ros2 node info NAZWA_WĘZŁA
+```
+
+Polecenie `node info` pokazuje informacje o wybranym węźle, w tym listę tematów, które subskrybuje (*Subscribers*) i publikuje (*Publishers*). Wybierz w ten sposób dowolny węzeł z listy i sprawdź jego informacje.
+
+Jakie tematy publikuje wybrany węzeł, a jakie subskrybuje? Czego możesz się z tego dowiedzieć o jego zadaniu?
 
 <details>
 <summary>Wyjaśnienie</summary>
 
-`map_processor` subskrybuje `/map` i na jej podstawie publikuje dwie nowe mapy: `/map_dilated` i `/map_cost`. Sam nie komunikuje się z robotem — jest pośrednikiem, który przygotowuje dane dla planera.
+Odpowiedź zależy od wybranego węzła. Na przykład `/map_processor` subskrybuje `/map` i publikuje `/map_dilated` oraz `/map_cost`, więc przetwarza mapę i udostępnia jej przygotowane wersje. Z kolei `/stage` publikuje między innymi dane z symulatora, takie jak skan lasera i odometria, oraz subskrybuje polecenia jazdy.
 
 </details>
 
 ### 4.3. Tematy
 
-Wypisz wszystkie tematy razem z typami wiadomości i znajdź wśród nich `/map`, `/map_dilated`, `/base_scan`, `/cmd_vel`, `/odom` i `/tf`. Następnie sprawdź, kto korzysta z tematu `/base_scan` i jak często pojawiają się na nim nowe wiadomości:
+Najpierw wpisz polecenie, które wyświetla nazwy wszystkich dostępnych tematów oraz typy przesyłanych na nich wiadomości:
 
 ```bash
 ros2 topic list -t
+```
+
+W wyniku znajdź między innymi tematy `/map`, `/map_dilated`, `/base_scan`, `/cmd_vel`, `/odom` i `/tf`. Typ obok nazwy tematu określa strukturę jego wiadomości.
+
+Teraz sprawdź, które węzły publikują i subskrybują `/base_scan`, czyli temat z odczytami lasera:
+
+```bash
 ros2 topic info /base_scan --verbose
+```
+
+W wyniku odszukaj sekcje *Publisher count* i *Subscription count* oraz listy węzłów publikujących i subskrybujących. Na końcu sprawdź, jak często przychodzą wiadomości na ten temat:
+
+```bash
 ros2 topic hz /base_scan
 ```
 
-Polecenie `hz` działa bez końca — przerwij je klawiszami Ctrl+C.
+Polecenie `hz` przez chwilę mierzy odstęp między wiadomościami i podaje ich częstotliwość. Działa bez końca, więc przerwij je klawiszami Ctrl+C.
 
 Który węzeł publikuje dane z lasera, a które je odbierają? Do czego służą im te dane?
 
@@ -205,15 +222,25 @@ Odczyty lasera publikuje symulator (`/stage`). Odbiera je `amcl`, który porówn
 
 ### 4.4. Wiadomości i mapa
 
-Obejrzyj definicje dwóch typów wiadomości: `Twist` (przyda się przy sterowaniu robotem) i `OccupancyGrid` (mapa). Potem wyświetl metadane mapy:
+Typ wiadomości opisuje pola, które może zawierać każda wiadomość przesyłana na danym temacie. Wyświetl definicję typu `Twist`, używanego do opisu prędkości robota:
 
 ```bash
 ros2 interface show geometry_msgs/msg/Twist
+```
+
+Zwróć uwagę na pola `linear` (prędkość liniowa) i `angular` (prędkość kątowa). Następnie wyświetl definicję typu `OccupancyGrid`, używanego do przesyłania map:
+
+```bash
 ros2 interface show nav_msgs/msg/OccupancyGrid
+```
+
+W tej definicji znajdź pola `info` (metadane mapy) i `data` (wartości komórek siatki). Żeby zobaczyć metadane faktycznie używanej mapy, wpisz:
+
+```bash
 ros2 topic echo /map --once --field info
 ```
 
-Tablicę `data` pomijamy, bo ma dziesiątki tysięcy elementów — dlatego wypisujemy tylko pole `info`. Jeśli `echo` nic nie wypisuje, poczekaj chwilę na załadowanie mapy albo dodaj opcje `--qos-durability transient_local --qos-reliability reliable` (mapa jest publikowana tylko raz, więc odbiorca musi o nią w ten sposób poprosić). W definicji `Twist` zobaczysz dwa wektory, `linear` i `angular`, a w `OccupancyGrid` pola `info` i `data`. Zapisz sobie `resolution`, `width`, `height` i `origin` — będą potrzebne w zadaniu.
+Opcja `--once` kończy polecenie po odebraniu jednej wiadomości, a `--field info` ogranicza wynik do metadanych — tablica `data` może zawierać dziesiątki tysięcy elementów. W wyniku odczytaj `resolution`, `width`, `height` i `origin`. Jeśli nic się nie wyświetli, poczekaj chwilę na załadowanie mapy albo ponów polecenie z opcjami `--qos-durability transient_local --qos-reliability reliable`. Są potrzebne, ponieważ mapa jest publikowana tylko raz i odbiorca musi zażądać wiadomości z odpowiednią jakością usługi (QoS).
 
 Ile metrów ma mapa wzdłuż osi x i co oznacza `origin`?
 
