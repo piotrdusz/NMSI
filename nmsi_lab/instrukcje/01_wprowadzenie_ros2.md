@@ -28,7 +28,7 @@ W ćwiczeniu korzystamy z następujących narzędzi:
 | **colcon** | budowanie pakietów |
 | **C++17, VS Code** | język i edytor |
 
-Ta instrukcja składa się z dwóch etapów. Najpierw (punkty 2 i 3) poznasz pojęcia ROS 2 i architekturę naszego ćwiczenia, a następnie (punkt 4) sprawdzisz je w praktyce na działającej symulacji. Każde ćwiczenie w punkcie 4 ma ten sam układ: **Zrób** (polecenia do wpisania), **Zaobserwuj** (czego szukać w wyniku) i **Zastanów się** (pytania, które mają pokazać, co się stało i dlaczego). Pod pytaniami znajduje się rozwijane wyjaśnienie — zajrzyj do niego dopiero po własnej próbie odpowiedzi.
+Ta instrukcja składa się z dwóch etapów. Najpierw (punkty 2 i 3) poznasz pojęcia ROS 2 i architekturę naszego ćwiczenia, a następnie (punkt 4) sprawdzisz je w praktyce na działającej symulacji. W punkcie 4 wykonujesz polecenia, obserwujesz ich efekty i odpowiadasz na pytania. Pod każdym pytaniem znajduje się rozwijane wyjaśnienie — zajrzyj do niego dopiero po własnej próbie odpowiedzi.
 
 ## 2. Podstawowe pojęcia ROS 2
 
@@ -146,43 +146,34 @@ W szkielecie, który dostajesz, `a_star` zamiast trasy publikuje na razie prosty
 
 ## 4. Praca z symulacją
 
-W tej części sprawdzisz opisane wcześniej pojęcia na działającej symulacji. Przy każdym ćwiczeniu najpierw wykonujesz polecenia (**Zrób**), potem sprawdzasz, co się stało (**Zaobserwuj**), a na końcu zastanawiasz się nad przyczynami (**Zastanów się**).
+W tej części sprawdzisz opisane wcześniej pojęcia na działającej symulacji: uruchomisz ją, obejrzysz jej dane z poziomu terminala i poruszysz robotem.
 
 Polecenia wpisujesz w terminalu Guake, który rozwija się i chowa klawiszem **F12**. Do pracy potrzebujesz kilku terminali jednocześnie, więc każdy nowy otwieraj jako **nową kartę** Guake (**Ctrl+Shift+T**). Procesy działające w danej karcie, np. symulację, można zatrzymać klawiszami **Ctrl+C**.
 
 ### 4.1. Uruchomienie symulacji
 
-**Zrób.** W pierwszej karcie terminala wpisz:
+W pierwszej karcie terminala uruchom symulację:
 
 ```bash
 ros2 launch nmsi_lab simulation.launch.py world:=hallway
 ```
 
-**Zaobserwuj.** Po kilku sekundach pojawią się dwa okna: **Stage** (symulator z widokiem świata i robotem) oraz **RViz2** (z gotową konfiguracją: mapa, odczyty lasera, układy TF, trasa i panel Teleop). Mapa w RViz2 pojawi się z krótkim opóźnieniem. W terminalu zobaczysz komunikaty kilku węzłów. Parametr `world:=` wybiera świat: `cave` (domyślny), `hallway` albo `lines`.
+Jedno polecenie uruchamia naraz kilka węzłów wymienionych w pliku `simulation.launch.py`. Po kilku sekundach pojawią się dwa okna: **Stage** (symulator z widokiem świata i robotem) oraz **RViz2** (z gotową konfiguracją: mapa, odczyty lasera, układy TF, trasa i panel Teleop). Mapa w RViz2 pojawi się z krótkim opóźnieniem, bo `map_server` i `amcl` są uruchamiane dopiero przez `lifecycle_manager`. Parametr `world:=` wybiera świat: `cave` (domyślny), `hallway` albo `lines`.
 
-**Zastanów się.** Jednym poleceniem uruchomiłeś kilka programów. Skąd ROS 2 wiedział, które uruchomić? Gdzie jest to zapisane?
-
-<details>
-<summary>Wyjaśnienie</summary>
-
-Polecenie `ros2 launch <pakiet> <plik>` wykonuje plik launch. W `simulation.launch.py` (katalog `launch` pakietu `nmsi_lab`) wymienione są węzły `stage`, `rviz2`, `map_server`, `map_processor`, `amcl` i `lifecycle_manager`. Ostatni z nich uruchamia `map_server` i `amcl` dopiero po starcie pozostałych, stąd opóźnienie mapy.
-
-</details>
-
-Tej karty nie zamykaj, bo działa w niej cała symulacja. Symulację można zatrzymać klawiszami Ctrl+C w tej karcie; nie zamykaj okien Stage i RViz2 krzyżykiem.
+Tej karty nie zamykaj, bo działa w niej cała symulacja. Można ją zatrzymać klawiszami Ctrl+C; nie zamykaj okien Stage i RViz2 krzyżykiem.
 
 ### 4.2. Węzły
 
-**Zrób.** Otwórz nową kartę i wpisz:
+Otwórz nową kartę, wypisz działające węzły, a potem zobacz, z czym komunikuje się jeden z nich:
 
 ```bash
 ros2 node list
 ros2 node info /map_processor
 ```
 
-**Zaobserwuj.** Pierwsze polecenie wypisuje nazwy działających węzłów; znajdź na liście `/stage`, `/rviz2`, `/map_server` i `/amcl`. Drugie wypisuje tematy, które wskazany węzeł subskrybuje (sekcja *Subscribers*) i publikuje (sekcja *Publishers*).
+Na liście znajdziesz m.in. `/stage`, `/rviz2`, `/map_server` i `/amcl`. Polecenie `node info` wypisuje tematy, które węzeł subskrybuje (*Subscribers*) i publikuje (*Publishers*).
 
-**Zastanów się.** Z jakich tematów korzysta `map_processor` i co z nich robi?
+Jaką rolę pełni w systemie węzeł `map_processor`?
 
 <details>
 <summary>Wyjaśnienie</summary>
@@ -193,7 +184,7 @@ ros2 node info /map_processor
 
 ### 4.3. Tematy
 
-**Zrób.** W tej samej karcie wpisz kolejno:
+Wypisz wszystkie tematy razem z typami wiadomości i znajdź wśród nich `/map`, `/map_dilated`, `/base_scan`, `/cmd_vel`, `/odom` i `/tf`. Następnie sprawdź, kto korzysta z tematu `/base_scan` i jak często pojawiają się na nim nowe wiadomości:
 
 ```bash
 ros2 topic list -t
@@ -203,9 +194,7 @@ ros2 topic hz /base_scan
 
 Polecenie `hz` działa bez końca — przerwij je klawiszami Ctrl+C.
 
-**Zaobserwuj.** Pierwsze polecenie wypisuje wszystkie tematy razem z typami wiadomości; znajdź wśród nich `/map`, `/map_dilated`, `/base_scan`, `/cmd_vel`, `/odom` i `/tf`. Drugie pokazuje typ tematu `/base_scan` oraz nazwy węzłów, które go publikują i subskrybują. Trzecie podaje, ile razy na sekundę pojawia się nowa wiadomość (*average rate*).
-
-**Zastanów się.** Który węzeł publikuje `/base_scan`, a które go odbierają? Do czego mogą im służyć te dane?
+Który węzeł publikuje dane z lasera, a które je odbierają? Do czego służą im te dane?
 
 <details>
 <summary>Wyjaśnienie</summary>
@@ -216,7 +205,7 @@ Odczyty lasera publikuje symulator (`/stage`). Odbiera je `amcl`, który porówn
 
 ### 4.4. Wiadomości i mapa
 
-**Zrób.** Wyświetl definicje dwóch typów wiadomości, a potem metadane mapy:
+Obejrzyj definicje dwóch typów wiadomości: `Twist` (przyda się przy sterowaniu robotem) i `OccupancyGrid` (mapa). Potem wyświetl metadane mapy:
 
 ```bash
 ros2 interface show geometry_msgs/msg/Twist
@@ -224,11 +213,9 @@ ros2 interface show nav_msgs/msg/OccupancyGrid
 ros2 topic echo /map --once --field info
 ```
 
-Pełnej mapy nie wypisuj — jej tablica `data` ma dziesiątki tysięcy elementów, dlatego wyświetlamy tylko pole `info`. Jeśli `echo` nic nie wypisuje, poczekaj chwilę na załadowanie mapy albo dodaj opcje `--qos-durability transient_local --qos-reliability reliable` (mapa jest publikowana tylko raz, więc odbiorca musi o nią w ten sposób poprosić).
+Tablicę `data` pomijamy, bo ma dziesiątki tysięcy elementów — dlatego wypisujemy tylko pole `info`. Jeśli `echo` nic nie wypisuje, poczekaj chwilę na załadowanie mapy albo dodaj opcje `--qos-durability transient_local --qos-reliability reliable` (mapa jest publikowana tylko raz, więc odbiorca musi o nią w ten sposób poprosić). W definicji `Twist` zobaczysz dwa wektory, `linear` i `angular`, a w `OccupancyGrid` pola `info` i `data`. Zapisz sobie `resolution`, `width`, `height` i `origin` — będą potrzebne w zadaniu.
 
-**Zaobserwuj.** Definicja `Twist` składa się z dwóch wektorów: `linear` i `angular`. W definicji `OccupancyGrid` znajdź pola `info` i `data`. Wynik trzeciego polecenia zawiera `resolution`, `width`, `height` i `origin`. Zapisz sobie te wartości — będą potrzebne w zadaniu.
-
-**Zastanów się.** Ile metrów ma mapa wzdłuż osi x? Co oznacza `origin`?
+Ile metrów ma mapa wzdłuż osi x i co oznacza `origin`?
 
 <details>
 <summary>Wyjaśnienie</summary>
@@ -239,15 +226,13 @@ Szerokość mapy w metrach to `width` razy `resolution` (rozmiar jednej komórki
 
 ### 4.5. Graf węzłów i tematów
 
-**Zrób.** W nowej karcie uruchom narzędzie rysujące połączenia między węzłami:
+W nowej karcie uruchom narzędzie rysujące połączenia między węzłami:
 
 ```bash
 rqt_graph
 ```
 
-**Zaobserwuj.** Pojawi się wykres, na którym węzły są połączone strzałkami opisanymi nazwami tematów. Jeśli widzisz tylko węzły, wybierz w górnym menu widok *Nodes/Topics (all)* i odśwież wykres przyciskiem w lewym górnym rogu.
-
-**Zastanów się.** Porównaj wykres z diagramem z punktu 3. Których węzłów jeszcze brakuje i dlaczego?
+Węzły są na nim połączone strzałkami opisanymi nazwami tematów. Jeśli widzisz tylko węzły, wybierz w górnym menu widok *Nodes/Topics (all)* i odśwież wykres przyciskiem w lewym górnym rogu. Porównaj go z diagramem z punktu 3: których węzłów jeszcze brakuje i dlaczego?
 
 <details>
 <summary>Wyjaśnienie</summary>
@@ -258,21 +243,19 @@ Brakuje `a_star` i `path_follower`, ponieważ uruchamia je dopiero drugi plik la
 
 ### 4.6. Ręczne sterowanie robotem
 
-**Zrób.** Robot stoi w miejscu, bo nikt nie wysłał mu polecenia jazdy. W RViz2 zaznacz w panelu Teleop pole *Enabled* i poruszaj robotem za pomocą pola sterowania. Jednocześnie w nowej karcie terminala wpisz:
+Robot stoi w miejscu, bo nikt nie wysłał mu polecenia jazdy. W RViz2 zaznacz w panelu Teleop pole *Enabled* i poruszaj robotem za pomocą pola sterowania. Jednocześnie w nowej karcie wypisuj jego pozycję z odometrii:
 
 ```bash
 ros2 topic echo /odom --field pose.pose.position
 ```
 
-Następnie odznacz *Enabled* i sprawdź, kto pracuje na temacie sterowania:
+Współrzędne zmieniają się wraz z ruchem robota. Przerwij `echo` klawiszami Ctrl+C, odznacz *Enabled* i sprawdź, które węzły publikują i subskrybują temat sterowania:
 
 ```bash
 ros2 topic info /cmd_vel --verbose
 ```
 
-**Zaobserwuj.** Robot rusza w oknie Stage i w RViz2, a współrzędne `x` i `y` wypisywane w terminalu zmieniają się wraz z jego ruchem. Przerwij `echo` klawiszami Ctrl+C. Drugie polecenie pokazuje, które węzły publikują i subskrybują `/cmd_vel`.
-
-**Zastanów się.** Skąd symulator wiedział, że ma jechać, i skąd wzięły się nowe współrzędne w terminalu?
+Skąd symulator wiedział, że ma jechać, i skąd wzięły się współrzędne w terminalu?
 
 <details>
 <summary>Wyjaśnienie</summary>
@@ -281,17 +264,15 @@ Panel Teleop publikuje na `/cmd_vel` wiadomości typu `Twist`, a symulator je su
 
 </details>
 
-**Zrób.** To samo polecenie można wysłać ręcznie z terminala. Przy wyłączonym panelu Teleop wpisz:
+To samo polecenie można wysłać ręcznie z terminala. Przy wyłączonym panelu Teleop wpisz:
 
 ```bash
 ros2 topic pub --rate 10 /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 0.3}, angular: {z: 0.0}}"
 ```
 
-Po kilku sekundach przerwij je klawiszami Ctrl+C. Potem uruchom je ponownie z `angular: {z: 0.5}` i znowu przerwij.
+Robot pojedzie prosto. Po kilku sekundach przerwij polecenie klawiszami Ctrl+C, uruchom je ponownie z `angular: {z: 0.5}` (robot pojedzie po łuku) i znowu przerwij. Obserwuj przy tym robota oraz terminal z symulacją, w którym po kilku sekundach pojawi się komunikat `watchdog timeout`.
 
-**Zaobserwuj.** Pierwsze polecenie powinno ruszyć robota prosto, drugie po łuku. Po przerwaniu publikowania robot nie zatrzymuje się od razu — po kilku sekundach w terminalu z symulacją pojawia się komunikat `watchdog timeout`.
-
-**Zastanów się.** Dlaczego robot jechał jeszcze po przerwaniu polecenia? Co z tego wynika dla programu, który ma zatrzymać robota?
+Dlaczego robot nie zatrzymał się od razu po przerwaniu polecenia? Co z tego wynika dla programu, który ma zatrzymać robota?
 
 <details>
 <summary>Wyjaśnienie</summary>
@@ -304,22 +285,22 @@ Symulator pamięta ostatnie otrzymane polecenie i wykonuje je, aż dostanie nowe
 
 ### 4.7. Układy współrzędnych (TF)
 
-**Zrób.** Uruchom narzędzie wypisujące pozycję robota w układzie mapy, a w tym czasie pojeździj robotem za pomocą panelu Teleop:
+Uruchom narzędzie wypisujące pozycję robota w układzie mapy i w tym czasie pojeździj robotem za pomocą panelu Teleop:
 
 ```bash
 ros2 run tf2_ros tf2_echo map base_link
 ```
 
-Przerwij je klawiszami Ctrl+C, wyłącz Teleop i wpisz:
+Co sekundę zobaczysz położenie (*Translation*) i orientację (*Rotation*) układu `base_link` względem `map`. Przerwij polecenie klawiszami Ctrl+C, wyłącz Teleop, sprawdź, kto publikuje przekształcenia, i wygeneruj rysunek drzewa układów:
 
 ```bash
 ros2 topic info /tf --verbose
 ros2 run tf2_tools view_frames
 ```
 
-**Zaobserwuj.** `tf2_echo` co sekundę wypisuje położenie (*Translation*) i orientację (*Rotation*) układu `base_link` względem `map`; wartości zmieniają się, gdy robot jedzie. Drugie polecenie pokazuje węzły publikujące na `/tf`. Trzecie zapisuje w bieżącym katalogu plik `frames_*.pdf` z drzewem układów — otwórz go.
+Drugie polecenie zapisuje w bieżącym katalogu plik `frames_*.pdf` — otwórz go.
 
-**Zastanów się.** Które węzły publikują na `/tf` i które ogniwo drzewa układów dostarcza każdy z nich? Dlaczego można zapytać o pozycję `base_link` w układzie `map`, mimo że żaden węzeł nie publikuje bezpośrednio takiego przekształcenia?
+Które węzły publikują na `/tf` i jakie ogniwo drzewa układów dostarcza każdy z nich? Dlaczego można zapytać o pozycję `base_link` w układzie `map`, mimo że żaden węzeł nie publikuje takiego przekształcenia bezpośrednio?
 
 <details>
 <summary>Wyjaśnienie</summary>
@@ -330,31 +311,20 @@ Symulator (`/stage`) publikuje `odom → base_link` oraz położenie czujników 
 
 ### 4.8. Parametry
 
-**Zrób.** Wpisz:
+Zachowanie węzła można zmieniać parametrami. Wypisz parametry węzła `map_processor` i odczytaj jeden z nich:
 
 ```bash
 ros2 param list /map_processor
 ros2 param get /map_processor robot_radius
 ```
 
-**Zaobserwuj.** Pierwsze polecenie wypisuje parametry węzła (m.in. `robot_radius`, `max_cost_distance` i `occupied_threshold`), a drugie wartość wybranego parametru.
-
-**Zastanów się.** Gdzie ta wartość została ustawiona i co oznacza w odniesieniu do robota?
-
-<details>
-<summary>Wyjaśnienie</summary>
-
-Wartość ustawiono w `simulation.launch.py` w definicji węzła `map_processor`. Jest to promień robota w metrach: węzeł pogrubia przeszkody o tę odległość, dzięki czemu robota można później traktować jak punkt. Węzeł odczytuje parametr jeden raz przy starcie, więc zmiana wartości w trakcie działania nie przebudowałaby map.
-
-</details>
+Parametr `robot_radius` to promień robota w metrach, ustawiony w pliku `simulation.launch.py`. O tę odległość `map_processor` „pogrubia" przeszkody na mapie. Efekt zobaczysz w następnym kroku.
 
 ### 4.9. Mapy w RViz2
 
-**Zrób.** W panelu *Displays* po lewej stronie RViz2 rozwiń wyświetlacz **Map**. W polu **Topic** zmieniaj kolejno temat na `/map`, `/map_dilated` i `/map_cost`. Możesz też włączać i wyłączać wyświetlacz polem wyboru, aby widzieć mapę i sam świat.
+W panelu *Displays* po lewej stronie RViz2 rozwiń wyświetlacz **Map**. W polu **Topic** zmieniaj kolejno temat na `/map`, `/map_dilated` i `/map_cost` i porównuj, jak wyglądają ściany i przeszkody. Polem wyboru przy nazwie wyświetlacza możesz go wyłączyć, żeby zobaczyć sam świat. Jeśli po zmianie tematu mapa się nie wyświetla, rozwiń pole *Topic* i sprawdź, czy *Durability Policy* ma wartość *Transient Local*.
 
-**Zaobserwuj.** Czym różnią się trzy mapy w pobliżu ścian i przeszkód? Jeśli po zmianie tematu mapa się nie wyświetla, rozwiń pole *Topic* i sprawdź, czy *Durability Policy* ma wartość *Transient Local*.
-
-**Zastanów się.** Dlaczego planer ma korzystać z `/map_dilated`, a nie z oryginalnej `/map`? Do czego może służyć `/map_cost`?
+Czym różnią się te trzy mapy i dlaczego planer ma korzystać z `/map_dilated`, a nie z oryginalnej `/map`?
 
 <details>
 <summary>Wyjaśnienie</summary>
@@ -365,30 +335,30 @@ Na `/map_dilated` przeszkody są powiększone o promień robota. Jeśli środek 
 
 ### 4.10. Budowanie i uruchomienie szkieletu programu
 
-**Zrób.** Zbuduj pakiet z ćwiczeniem:
+Zbuduj pakiet z ćwiczeniem:
 
 ```bash
 cd ~/nmsi_ws
 colcon build --symlink-install --packages-select nmsi_lab
 ```
 
-**Zaobserwuj.** Jeśli budowanie się powiodło, na końcu pojawi się podsumowanie `Summary: 1 package finished`. W razie błędu szukaj pierwszej linii zawierającej `error:`. Po **każdej** zmianie kodu C++ trzeba ponownie zbudować pakiet i zrestartować węzły (Ctrl+C w karcie z `robot_controller.launch.py` i ponowne uruchomienie).
+Jeśli budowanie się powiodło, na końcu zobaczysz podsumowanie `Summary: 1 package finished`. W razie błędu szukaj pierwszej linii zawierającej `error:`. Po **każdej** zmianie kodu C++ trzeba ponownie zbudować pakiet i zrestartować węzły (Ctrl+C w karcie z `robot_controller.launch.py` i ponowne uruchomienie).
 
-**Zrób.** Przy działającej symulacji i wyłączonym panelu Teleop uruchom w nowej karcie węzły ze szkieletu:
+Przy działającej symulacji i wyłączonym panelu Teleop uruchom w nowej karcie węzły ze szkieletu:
 
 ```bash
 ros2 launch nmsi_lab robot_controller.launch.py
 ```
 
-W RViz2 wybierz narzędzie **2D Goal Pose** na górnym pasku, kliknij punkt na mapie po drugiej stronie przeszkody i przeciągnij kursor (kierunek nie ma tu znaczenia). Potem w innej karcie wpisz:
+W RViz2 wybierz narzędzie **2D Goal Pose** na górnym pasku, kliknij punkt na mapie po drugiej stronie przeszkody i przeciągnij kursor (kierunek nie ma tu znaczenia). Potem w innej karcie wypisz otrzymaną trasę:
 
 ```bash
 ros2 topic echo /path --once
 ```
 
-**Zaobserwuj.** W RViz2 pojawi się zielona trasa `/path`, a w terminalu `path_follower` komunikaty (`Path registered`, a po dojechaniu `Goal achieved...`). Robot jedzie prosto do celu, a jeśli po drodze jest ściana, zatrzymuje się na niej. Wynik `echo` pokazuje listę `poses` zawierającą tylko dwa punkty. Jeśli robot utknie, zatrzymaj go klawiszami Ctrl+C w karcie z `robot_controller.launch.py`.
+W RViz2 pojawi się zielona trasa `/path`, a `path_follower` wypisze w terminalu `Path registered`, a po dojechaniu `Goal achieved...`. Robot jedzie prosto do celu, a jeśli po drodze jest ściana, zatrzymuje się na niej (jeśli utknie, zatrzymaj go klawiszami Ctrl+C w karcie z `robot_controller.launch.py`). Lista `poses` zawiera tylko dwa punkty.
 
-**Zastanów się.** Dlaczego robot nie omija przeszkód? Co musi zrobić `a_star`, żeby robot dojechał do celu bezpiecznie?
+Dlaczego robot nie omija przeszkód i co musi zrobić `a_star`, żeby dojechał do celu bezpiecznie?
 
 <details>
 <summary>Wyjaśnienie</summary>
