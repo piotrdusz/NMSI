@@ -4,6 +4,7 @@
 [submodule "stage_ros2"]
 	path = stage_ros2
 	url = https://github.com/tuw-robotics/stage_ros2
+	branch = lyrical-devel
 [submodule "teleop_panel"]
 	path = teleop_panel
 	url = https://www.github.com/piotrdusz/teleop_panel
