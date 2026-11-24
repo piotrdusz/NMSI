@@ -54,12 +54,14 @@ Do nauki zacznij od świata `cave`. Gdy rozwiązanie będzie działać, sprawdź
 | 4 | Zapis i wczytanie Q-tablicy (`save_q_table`, `load_q_table`) | 1 |
 | 5 | Krok uczenia: nagrody, warunki końca epizodu, przechowywanie poprzedniego stanu (`learning_loop`) | 2 |
 | 6 | Działająca polityka: po nauce robot w trybie „following" dojeżdża do celu bez kolizji w co najmniej 8 z 10 prób | 2 |
-| Bonus| Jeszcze myślę | + 1 |
+| Bonus| Sprawdzić, czy dla różnych wartości parametru ε (który nie zmienia się w czasie uczenia) polityka (Q-tablica) zbiega mniej więcej do tych samych wartości | + 1 |
+| Bonus| Sprawdzić, czy prędkość zbiegania do ostatecznej polityki zależu od parametru ε | + 1 |
 
 Kod źródłowy należy przesłać przez platformę **LeON** — wyłącznie pliki źródłowe (bez `build`, `install`, `log`) oraz **plik z nauczoną Q-tablicą**.
 
 - Termin zwykły: **3 stycznia**.
 - Termin dodatkowy: **10 stycznia**. Za pracę oddaną w tym terminie przyznaje się 75% uzyskanych punktów.
+- Po tych terminach zero punktów.
 
 ### 2.2. Samodzielność pracy
 
@@ -228,7 +230,7 @@ Epizod powinien się kończyć, gdy:
 
 1. robot ma kolizję (`*collided == true`),
 2. robot odjechał zbyt daleko od trasy (`find_head_point()` nie znajduje punktu — okrąg o promieniu `head_radius` nie przecina trasy),
-3. robot dojechał do celu w przyjętej tolerancji, mierzonej odległością od robota do końca trasy. `head_radius` (0,4 m) jest promieniem wyszukiwania punktu trasy, **nie** tolerancją celu. Tolerancję celu wybiera student, opisuje ją w sprawozdaniu i stosuje konsekwentnie.
+3. robot dojechał do celu w przyjętej tolerancji, mierzonej odległością od robota do końca trasy. `head_radius` (0,4 m) jest promieniem wyszukiwania punktu trasy, **nie** tolerancją celu. Tolerancję celu wybiera student.
 
 Szkielet nie określa kolejności sprawdzania kolizji, zjazdu z trasy i osiągnięcia celu. Zdarzenia mogą wystąpić w tym samym kroku — na przykład robot może jednocześnie znaleźć się w tolerancji celu i zgłosić kolizję — więc zdecyduj, które zdarzenie ma wtedy pierwszeństwo. Nie utożsamiaj braku planu z terminalnym przejściem Q: po wysłaniu losowego celu szkielet czeka na trasę, a po 10 sekundach bez niej próbuje inny cel. Po pięciu nieudanych próbach przechodzi do resetowania pozycji. Nie rozpoczął się wtedy krok jazdy po trasie, więc nie przypisuje się nagrody za wykonane działanie.
 
